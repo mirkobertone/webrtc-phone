@@ -89,17 +89,25 @@ function App() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="simple-softphone-theme">
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto p-4 max-w-4xl">
+        <div className="container mx-auto px-4 max-w-xl">
+
           {/* Header */}
-          <header className="mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <img
-                  src="/logo.svg"
-                  alt="WebRTC Phone Logo"
-                  className="w-12 h-12"
-                />
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-slate-200 dark:to-slate-400 bg-clip-text text-transparent">
+          <header className="pt-7 pb-5 mb-6 border-b border-border/60">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                {/* Logo with glow halo */}
+                <div className="relative shrink-0">
+                  <div className="absolute inset-0 rounded-xl bg-primary/30 blur-lg scale-110" />
+                  <img
+                    src="/logo.svg"
+                    alt="WebRTC Phone Logo"
+                    className="relative w-9 h-9"
+                  />
+                </div>
+                <h1
+                  className="text-[1.6rem] font-bold tracking-tight bg-gradient-to-r from-blue-600 via-blue-500 to-violet-600 dark:from-blue-400 dark:via-blue-300 dark:to-violet-400 bg-clip-text text-transparent select-none"
+                  style={{ fontFamily: "'Syne', system-ui, sans-serif" }}
+                >
                   WebRTC Phone
                 </h1>
               </div>
@@ -120,16 +128,19 @@ function App() {
               onValueChange={setActiveTab}
               className="w-full"
             >
-              <TabsList className="grid w-full grid-cols-2 mb-8">
-                <TabsTrigger value="call" className="flex items-center gap-2">
-                  <Phone className="w-4 h-4" />
+              <TabsList className="grid w-full grid-cols-2 mb-7 h-11">
+                <TabsTrigger
+                  value="call"
+                  className="flex items-center gap-2 text-[13px] font-semibold tracking-wide"
+                >
+                  <Phone className="w-3.5 h-3.5" />
                   Call
                 </TabsTrigger>
                 <TabsTrigger
                   value="accounts"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 text-[13px] font-semibold tracking-wide"
                 >
-                  <Users className="w-4 h-4" />
+                  <Users className="w-3.5 h-3.5" />
                   Accounts
                 </TabsTrigger>
               </TabsList>

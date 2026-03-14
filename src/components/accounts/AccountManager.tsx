@@ -118,27 +118,59 @@ export function AccountManager() {
     }
   };
 
-  const getStatusColor = (status: SIPAccount["registrationStatus"]) => {
+  const getStatusConfig = (status: SIPAccount["registrationStatus"]) => {
     switch (status) {
       case "registered":
-        return "text-green-600";
+        return {
+          dot: "bg-emerald-500",
+          dotStyle: { boxShadow: "0 0 6px 2px rgba(34,197,94,0.45)" } as React.CSSProperties,
+          label: "Registered",
+          labelClass: "text-emerald-600 dark:text-emerald-400",
+          cardBorderLeft: "border-l-emerald-500",
+        };
       case "connecting":
-        return "text-yellow-600";
+        return {
+          dot: "bg-amber-400 animate-pulse",
+          dotStyle: { boxShadow: "0 0 5px 1px rgba(251,191,36,0.45)" } as React.CSSProperties,
+          label: "Connecting",
+          labelClass: "text-amber-600 dark:text-amber-300",
+          cardBorderLeft: "border-l-amber-400",
+        };
       case "failed":
-        return "text-red-600";
+        return {
+          dot: "bg-red-500",
+          dotStyle: { boxShadow: "0 0 5px 1px rgba(239,68,68,0.4)" } as React.CSSProperties,
+          label: "Failed",
+          labelClass: "text-red-600 dark:text-red-400",
+          cardBorderLeft: "border-l-red-500",
+        };
       default:
-        return "text-gray-500";
+        return {
+          dot: "bg-slate-400 dark:bg-slate-600",
+          dotStyle: {} as React.CSSProperties,
+          label: "Unregistered",
+          labelClass: "text-muted-foreground",
+          cardBorderLeft: "border-l-border",
+        };
     }
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">SIP Accounts</h2>
+        <h2
+          className="text-base font-bold tracking-tight text-foreground"
+          style={{ fontFamily: "'Syne', system-ui, sans-serif" }}
+        >
+          SIP Accounts
+        </h2>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button size="sm">
-              <Plus className="w-4 h-4 mr-2" />
+            <Button
+              size="sm"
+              className="h-8 text-xs font-semibold px-3 bg-primary hover:bg-primary/90 shadow-[0_2px_8px_rgba(var(--primary),0.35)]"
+            >
+              <Plus className="w-3.5 h-3.5 mr-1.5" />
               Add Account
             </Button>
           </DialogTrigger>
@@ -154,106 +186,117 @@ export function AccountManager() {
       </div>
 
       {accounts.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="border-dashed border-border/60">
+          <CardContent className="pt-10 pb-10">
             <div className="text-center text-muted-foreground">
-              <p>No SIP accounts configured.</p>
-              <p className="text-sm mt-1">
-                Add your first account to get started.
+              <div className="w-12 h-12 rounded-full bg-muted/60 flex items-center justify-center mx-auto mb-4">
+                <Plus className="w-5 h-5 text-muted-foreground/50" />
+              </div>
+              <p className="font-medium text-sm">No SIP accounts configured</p>
+              <p className="text-xs mt-1 text-muted-foreground/60">
+                Add your first account to get started
               </p>
             </div>
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
-          {accounts.map((account) => (
-            <Card
-              key={account.id}
-              className="cursor-pointer transition-all duration-200 hover:bg-muted/30 hover:shadow-sm"
-              onClick={() => {
-                setEditingAccount(account);
-                setIsEditDialogOpen(true);
-              }}
-            >
-              <CardContent className="pt-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold truncate text-foreground">
-                        {account.name}
-                      </h3>
-                    </div>
+        <div className="space-y-2.5">
+          {accounts.map((account) => {
+            const statusConfig = getStatusConfig(account.registrationStatus);
+            return (
+              <Card
+                key={account.id}
+                className={`cursor-pointer overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/5 border-border/60 border-l-[3px] ${statusConfig.cardBorderLeft}`}
+                style={{
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.03)",
+                }}
+                onClick={() => {
+                  setEditingAccount(account);
+                  setIsEditDialogOpen(true);
+                }}
+              >
+                <CardContent className="pl-5 pr-4 py-3.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3
+                          className="font-semibold truncate text-foreground text-sm"
+                          style={{ fontFamily: "'Syne', system-ui, sans-serif" }}
+                        >
+                          {account.name}
+                        </h3>
+                      </div>
 
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground truncate font-mono">
-                        {account.userId}@{account.server}
-                      </p>
-                      <div className="flex items-center gap-3 flex-wrap">
-                        <div className="flex items-center gap-1.5">
-                          <div
-                            className={`w-2.5 h-2.5 rounded-full ${
-                              account.registrationStatus === "registered"
-                                ? "bg-green-500 shadow-sm"
-                                : account.registrationStatus === "connecting"
-                                ? "bg-yellow-500 animate-pulse shadow-sm"
-                                : account.registrationStatus === "failed"
-                                ? "bg-red-500 shadow-sm"
-                                : "bg-gray-400"
-                            }`}
-                          />
-                          <span
-                            className={`text-xs font-medium capitalize ${getStatusColor(
-                              account.registrationStatus
-                            )}`}
-                          >
-                            {account.registrationStatus}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Badge variant="outline" className="text-xs">
-                            {account.transport}
-                          </Badge>
-                          {account.port !==
-                            DEFAULT_PORTS[account.transport] && (
-                            <Badge variant="outline" className="text-xs">
-                              :{account.port}
+                      <div className="space-y-2">
+                        <p
+                          className="text-xs text-muted-foreground truncate"
+                          style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                        >
+                          {account.userId}@{account.server}
+                        </p>
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <div className="flex items-center gap-1.5">
+                            <div
+                              className={`w-2 h-2 rounded-full ${statusConfig.dot}`}
+                              style={statusConfig.dotStyle}
+                            />
+                            <span className={`text-xs font-medium capitalize ${statusConfig.labelClass}`}>
+                              {statusConfig.label}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] px-1.5 py-0 h-4 border-border/60 font-medium"
+                            >
+                              {account.transport}
                             </Badge>
-                          )}
+                            {account.port !== DEFAULT_PORTS[account.transport] && (
+                              <Badge
+                                variant="outline"
+                                className="text-[10px] px-1.5 py-0 h-4 border-border/60 font-mono"
+                              >
+                                :{account.port}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex items-center gap-1 ml-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditingAccount(account);
-                        setIsEditDialogOpen(true);
-                      }}
-                    >
-                      <Settings className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center gap-0.5 shrink-0 mt-0.5">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0 rounded-md text-muted-foreground/60 hover:text-foreground hover:bg-muted/60"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingAccount(account);
+                          setIsEditDialogOpen(true);
+                        }}
+                      >
+                        <Settings className="w-3.5 h-3.5" />
+                      </Button>
 
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (confirm(`Delete account "${account.name}"?`)) {
-                          handleDeleteAccount(account.id);
-                        }
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0 rounded-md text-muted-foreground/60 hover:text-red-500 hover:bg-red-500/10"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm(`Delete account "${account.name}"?`)) {
+                            handleDeleteAccount(account.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
 
